@@ -4,7 +4,7 @@
 
 ---
 
-`star` &nbsp;·&nbsp; `know` &nbsp;·&nbsp; `sync` &nbsp;·&nbsp; `better` &nbsp;·&nbsp; `view` &nbsp;·&nbsp; **v2.0**
+`star` &nbsp;·&nbsp; `know` &nbsp;·&nbsp; `sync` &nbsp;·&nbsp; `better` &nbsp;·&nbsp; `view` &nbsp;·&nbsp; `APQR` &nbsp;·&nbsp; **v2.1**
 
 <br>
 
@@ -20,7 +20,7 @@
 
 ---
 
-五个配套的 Agent Skill，覆盖一个个人 harness 的完整生命周期：**搭起来、认识你、同步出去、定期体检、日常翻看。**
+六个配套的 Agent Skill，覆盖一个个人 harness 的完整生命周期：**搭起来、认识你、同步出去、定期体检、日常翻看、每天喂给你对的输入。**
 
 | Skill | 干什么 | 产出 |
 |-------|--------|------|
@@ -29,6 +29,7 @@
 | [**sync-your-harness**](sync-your-harness/) | 让 harness 跨设备、跨 Agent 可用 | 推送预演、白名单 `.gitignore`、大文件拦截、共享记忆、Skill 清点 |
 | [**better-your-harness**](better-your-harness/) | 给现有 harness 体检 | 可视化体检报告 + 可一键复制的修复口令 + 换 Agent 自测 |
 | [**view-your-harness**](view-your-harness/) | 日常翻你的 harness | 本地只读工作台：文件清单 + Skill 装备台 |
+| [**space-APQR**](space-APQR/) | 按你的问题找资料，替代刷信息流 | 6 轮访谈推出年度目标、月度问题、周计划，每天推 5 条核实过的一手材料，周日加推书和跨界输入 |
 
 不想装 Skill，只想要几句能直接用的话？看 [PROMPTS.md](PROMPTS.md)：7 条提示词，复制给任何 Agent 就能优化你本地的 harness。
 
@@ -48,7 +49,7 @@
 
 ## 不绑定任何一个 Agent
 
-五个 Skill 用的是标准 `SKILL.md` 格式（YAML frontmatter + 正文），**任何能读它的 Agent 都能用**：Claude Code、Codex、Cursor、OpenClaw、以及各种 buddy 系工具。
+六个 Skill 用的是标准 `SKILL.md` 格式（YAML frontmatter + 正文），**任何能读它的 Agent 都能用**：Claude Code、Codex、Cursor、OpenClaw、以及各种 buddy 系工具。
 
 更彻底一点：**底层全是纯 Python 命令行脚本，不 import 任何 Agent 相关的东西。** 你完全不用 Skill 机制，直接当 CLI 跑也行，产出的 HTML 报告是一样的。Skill 那层只是替你把访谈、判断、串流程这些事包起来。
 
@@ -89,6 +90,7 @@ cd build-your-harness
 for s in star know sync better view; do
   ln -s "$(pwd)/$s-your-harness" ~/.claude/skills/$s-your-harness
 done
+ln -s "$(pwd)/space-APQR" ~/.claude/skills/space-APQR
 ```
 
 **Codex**
@@ -97,11 +99,12 @@ done
 for s in star know sync better view; do
   ln -s "$(pwd)/$s-your-harness" ~/.codex/skills/$s-your-harness
 done
+ln -s "$(pwd)/space-APQR" ~/.codex/skills/space-APQR
 ```
 
-**其他 Agent** — 软链到它的 Skill 目录就行，五个 Skill 除了 `SKILL.md` 和 `scripts/` 没有别的依赖。项目级也可以：`<项目>/.claude/skills/` 或 `<项目>/.agents/skills/`。
+**其他 Agent** — 软链到它的 Skill 目录就行，六个 Skill 除了 `SKILL.md`、`scripts/` 和 `references/` 没有别的依赖。space-APQR 没有脚本，但每日推荐需要 Agent 能联网搜索和抓取网页。项目级也可以：`<项目>/.claude/skills/` 或 `<项目>/.agents/skills/`。
 
-装完说一句「帮我搭一个 harness」「我的目录太乱了帮我重组」「帮我生成画像」「推到 GitHub 安全吗」「给这个项目做个体检」或者「打开工作台」。
+装完说一句「帮我搭一个 harness」「我的目录太乱了帮我重组」「帮我生成画像」「推到 GitHub 安全吗」「给这个项目做个体检」「打开工作台」或者「帮我搭一个 APQR 信息流」。
 
 **不装也能用**
 
@@ -224,13 +227,18 @@ build-your-harness/
 │   └── scripts/
 │       ├── scan.py             确定性扫描 → findings.json
 │       └── render.py           findings + analysis → 可视化报告
-└── view-your-harness/          翻
-    ├── SKILL.md                Skill 说明书（含三条铁律）
-    ├── GUIDE.md                完整文档
-    └── scripts/
-        ├── index.py            目录 + Skill 清点 → index.json
-        ├── serve.py            本地只读服务，只绑 127.0.0.1
-        └── ui.html             单页工作台，原生 JS
+├── view-your-harness/          翻
+│   ├── SKILL.md                Skill 说明书（含三条铁律）
+│   ├── GUIDE.md                完整文档
+│   └── scripts/
+│       ├── index.py            目录 + Skill 清点 → index.json
+│       ├── serve.py            本地只读服务，只绑 127.0.0.1
+│       └── ui.html             单页工作台，原生 JS
+└── space-APQR/                 喂
+    ├── SKILL.md                Area → Project → Question → Resource 全流程
+    ├── references/             访谈题库、目标推导、每日推荐规则、定时任务模板
+    ├── templates/              档案模板和 JSONL 字段定义
+    └── examples/               一份跑通的完整档案
 ```
 
 `.gitignore` 排除了 `*.html`、`findings.json`、`plan.json` 这些产物 —— 它们含被扫或被搭项目的真实路径和结构，不该跟着开源代码走。
